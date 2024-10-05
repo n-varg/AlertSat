@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClimateGuardian: NASA's Early Warning System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Exo 2', sans-serif;
+            background-color: #f4f7fa;
+        }
+        .app-container {
+            text-align: center;
+        }
+        header {
+            background-color: #004080;
+            color: white;
+            padding: 20px 0;
+        }
+        h1 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 2rem;
+        }
+        .notification-bar {
+            background-color: #ffdd57;
+            color: #333;
+            padding: 10px;
+            font-weight: 400;
+            display: none;
+        }
+        .globe-container {
+            position: relative;
+            margin-top: 20px;
+        }
+        #globeCanvas {
+            width: 100%;
+            height: 500px;
+            background-color: #e0e0e0;
+        }
+        .overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .overlay h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .event-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 20px 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .event-item {
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-weight: 400;
+            font-size: 1rem;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #eventModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+        }
+        .close:hover, .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .recommendation-list {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        #eventosCercanos {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>ClimateGuardian: NASA's Early Warning System</h1>
+        </header>
+        
+        <div class="notification-bar" id="notificationBar">
+            New climate event detected! Check the map for details.
+        </div>
+
+        <div class="globe-container">
+            <canvas id="globeCanvas"></canvas>
+            <div class="overlay">
+                <h2>Active Climate Events</h2>
+                <ul class="event-list" id="eventList">
+                    <!-- Event items will be dynamically added here -->
+                </ul>
+                <button onclick="obtenerUbicacion()">Obtener Ubicación</button>
+                <p id="ubicacion"></p>
+                <div id="eventosCercanos"></div>
+            </div>
+        </div>
+
+        <div id="eventModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="modalTitle"></h2>
+                <p id="modalDescription"></p>
+                <div class="recommendations">
+                    <h3>Safety Recommendations</h3>
+                    <ul class="recommendation-list" id="recommendationList">
+                        <!-- Recommendations will be dynamically added here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scene, camera, renderer, globe;
+        let eventMarkers = [];
+
+        function initScene() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('globeCanvas'), antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            const geometry = new THREE.SphereGeometry(5, 32, 32);
+            const texture = new THREE.TextureLoader().load('{{ url_for('static', filename='globe_texture.jpg') }}');
+            const material = new THREE.MeshPhongMaterial({ map: texture });
+            globe = new THREE.Mesh(geometry, material);
+            scene.add(globe);
+
+            const light = new THREE.PointLight(0xffffff, 1, 100);
+            light.position.set(10, 10, 10);
+            scene.add(light);
+
+            camera.position.z = 15;
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            globe.rotation.y += 0.005;
+            renderer.render(scene, camera);
+        }
+
+        function obtenerUbicacion() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    document.getElementById('ubicacion').innerText = `Ubicación: Latitud ${lat}, Longitud ${lon}`;
+                    
+                    fetch('/obtener_eventos', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ lat: lat, lon: lon })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        mostrarEventosCercanos(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }, function() {
+                    document.getElementById('ubicacion').innerText = "Error al obtener la ubicación.";
+                });
+            } else {
+                document.getElementById('ubicacion').innerText = "Geolocalización no es soportada por este navegador.";
+            }
+        }
+
+        function mostrarEventosCercanos(eventos) {
+            const contenedorEventos = document.getElementById('eventosCercanos');
+            contenedorEventos.innerHTML = '';
+            if (eventos.length > 0) {
+                eventos.forEach(evento => {
+                    const item = document.createElement('div');
+                    item.innerText = `${evento.titulo} a ${evento.distancia_km.toFixed(2)} km`;
+                    contenedorEventos.appendChild(item);
+                });
+            } else {
+                contenedorEventos.innerText = "No hay eventos dentro de un radio de 200 km.";
+            }
+        }
+
+        window.onload = function() {
+            initScene();
+        };
+    </script>
+</body>
+</html>
