@@ -1,307 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ClimateGuardian: NASA's Early Warning System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            font-family: 'Exo 2', sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-        header {
-            background: #4CAF50;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        .globe-container {
-            position: relative;
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            padding: 20px;
-            background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
-            z-index: 10;
-        }
-        #globeCanvas {
-            width: 100%;
-            height: 100%;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .overlay {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            max-width: 300px;
-            z-index: 10;
-        }
-        h2 {
-            margin: 0 0 10px;
-            font-size: 20px;
-            font-weight: 700;
-            color: #4CAF50;
-        }
-        .event-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .event-list li {
-            cursor: pointer;
-            padding: 10px;
-            background: #4CAF50;
-            color: white;
-            margin-bottom: 5px;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-        .event-list li:hover {
-            background: #45a049;
-        }
-        #map {
-            height: 400px;
-            width: 100%;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            margin: 20px 0;
-            margin-left: 50%;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding-top: 60px;
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        @media (max-width: 768px) {
-            .overlay {
-                width: 90%;
-                left: 5%;
-            }
-            header {
-                font-size: 18px;
-            }
-            h2 {
-                font-size: 18px;
-            }
-            .event-list li {
-                padding: 8px;
-            }
-        }
-    </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="app-container">
-        <header>
-            <h1>ClimateGuardian: NASA's Early Warning System</h1>
-        </header>
-        
-        <div class="globe-container">
-            <canvas id="globeCanvas"></canvas>
-            <div class="overlay">
-                <h2>Active Climate Events</h2>
-                <ul class="event-list" id="eventList">
-                    <!-- Event items will be dynamically added here -->
-                </ul>
-                <button onclick="obtenerUbicacion()" style="border: radius 9em;">Obtener Ubicación</button>
-                <p id="ubicacion"></p>
-                <div id="eventosCercanos"></div>
-            </div>
-        </div>
+      <header>
+        <h1>ClimateGuardian: NASA's Early Warning System</h1>
+      </header>
 
+      <div class="globe-container">
+        <canvas id="globeCanvas"></canvas>t
+        <div class="overlay">
+            <h2>Active Climate Events</h2>
+            <ul class="event-list" id="eventList">
+                <!-- Event items will be dynamically added here -->
+            </ul>
+            <button class="button-33" onclick="obtenerUbicacion()" style="border: radius 9em;">Get my Location 🧭</button>
+            <p id="ubicacion"></p>
+            <div id="eventosCercanos"></div>
+        </div>
         <div id="map"></div>
+    </div>
+    
+    
 
-        <div id="eventModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
-                <h2 id="modalTitle"></h2>
-                <p id="modalDescription"></p>
-                <p id="modalDistance"></p>
-            </div>
+
+
+      <div id="eventModal" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="closeModal()">&times;</span>
+          <h2 id="modalTitle"></h2>
+          <p id="modalDescription"></p>
+          <p id="modalDistance"></p>
         </div>
+      </div>
     </div>
 
     <script>
-        let scene, camera, renderer, globe;
-        let map;
+      //let scene, camera, renderer, globe;
+      let map;
 
-        function initScene() {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('globeCanvas'), antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
+    //   function initScene() {
+    //     scene = new THREE.Scene();
+    //     camera = new THREE.PerspectiveCamera(
+    //       75,
+    //       window.innerWidth / window.innerHeight,
+    //       0.1,
+    //       1000
+    //     );
+    //     renderer = new THREE.WebGLRenderer({
+    //       canvas: document.getElementById("globeCanvas"),
+    //       antialias: true,
+    //     });
+    //     renderer.setSize(window.innerWidth, window.innerHeight);
 
-            const geometry = new THREE.SphereGeometry(5, 32, 32);
-            const texture = new THREE.TextureLoader().load('/static/earth_texture.jpg');
-            const material = new THREE.MeshPhongMaterial({ map: texture });
-            globe = new THREE.Mesh(geometry, material);
-            scene.add(globe);
+    //     const geometry = new THREE.SphereGeometry(5, 32, 32);
+    //     const texture = new THREE.TextureLoader().load(
+    //       "/static/earth_texture.jpg"
+    //     );
+    //     const material = new THREE.MeshPhongMaterial({ map: texture });
+    //     globe = new THREE.Mesh(geometry, material);
+    //     scene.add(globe);
 
-            const light = new THREE.PointLight(0xffffff, 1, 100);
-            light.position.set(10, 10, 10);
-            scene.add(light);
+    //     const light = new THREE.PointLight(0xffffff, 1, 100);
+    //     light.position.set(10, 10, 10);
+    //     scene.add(light);
 
-            camera.position.z = 10;
+    //     camera.position.z = 10;
 
-            animate();
-        }
+    //     animate();
+    //   }
 
-        function animate() {
-            requestAnimationFrame(animate);
-            globe.rotation.y += 0.005;
-            renderer.render(scene, camera);
-        }
+    //   function animate() {
+    //     requestAnimationFrame(animate);
+    //     globe.rotation.y += 0.005;
+    //     renderer.render(scene, camera);
+    //   }
 
-        function obtenerUbicacion() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    document.getElementById('ubicacion').innerText = `Location: Latitude ${lat}, Longitude ${lon}`;
-                    
-                    mostrarMapa(lat, lon);
-                    obtenerEventos(lat, lon);
-                }, function() {
-                    document.getElementById('ubicacion').innerText = 'Unable to retrieve your location.';
-                });
-            } else {
-                document.getElementById('ubicacion').innerText = 'Geolocation is not supported by this browser.';
+      function obtenerUbicacion() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              const lat = position.coords.latitude;
+              const lon = position.coords.longitude;
+              document.getElementById(
+                "ubicacion"
+              ).innerText = `Location: Latitude ${lat}, Longitude ${lon}`;
+
+              mostrarMapa(lat, lon);
+              obtenerEventos(lat, lon);
+            },
+            function () {
+              document.getElementById("ubicacion").innerText =
+                "Unable to retrieve your location.";
             }
+          );
+        } else {
+          document.getElementById("ubicacion").innerText =
+            "Geolocation is not supported by this browser.";
         }
+      }
 
-        function mostrarMapa(lat, lon) {
-            console.log("Mostrando mapa en:", lat, lon);
-            if (map) {
-                map.remove();
-            }
-            map = L.map('map').setView([lat, lon], 4);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
-            L.marker([lat, lon]).addTo(map).bindPopup('You are here!').openPopup();
+      function mostrarMapa(lat, lon) {
+        console.log("Mostrando mapa en:", lat, lon);
+        if (map) {
+          map.remove();
         }
+        map = L.map("map").setView([lat, lon], 4);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "© OpenStreetMap",
+        }).addTo(map);
+        L.marker([lat, lon]).addTo(map).bindPopup("You are here!").openPopup();
+      }
 
-        function obtenerEventos(lat, lon) {
-            fetch('/obtener_eventos', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ lat: lat, lon: lon }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Eventos obtenidos:", data);
-                mostrarEventos(data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
+      function obtenerEventos(lat, lon) {
+        fetch("/obtener_eventos", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ lat: lat, lon: lon }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Eventos obtenidos:", data);
+            mostrarEventos(data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+      function mostrarEventos(eventos) {
+        const eventList = document.getElementById("eventList");
+        eventList.innerHTML = "";
+
+        eventos.forEach((evento) => {
+          const li = document.createElement("li");
+          li.innerText = evento.titulo;
+          li.onclick = function () {
+            openModal(
+              evento.titulo,
+              `Distancia: ${evento.distancia_km.toFixed(2)} km`,
+              evento.ubicacion
+            );
+            map.setView(evento.ubicacion, 8);
+          };
+          eventList.appendChild(li);
+
+          L.marker(evento.ubicacion)
+            .addTo(map)
+            .bindPopup(
+              `<b>${
+                evento.titulo
+              }</b><br>Distancia: ${evento.distancia_km.toFixed(2)} km`
+            )
+            .on("click", function () {
+              openModal(
+                evento.titulo,
+                `Distancia: ${evento.distancia_km.toFixed(2)} km`,
+                evento.ubicacion
+              );
             });
+        });
+      }
+
+      function openModal(title, description, location) {
+        document.getElementById("modalTitle").innerText = title;
+        document.getElementById("modalDescription").innerText = description;
+        document.getElementById(
+          "modalDistance"
+        ).innerText = `Ubicación: ${location[0]}, ${location[1]}`;
+        document.getElementById("eventModal").style.display = "block";
+      }
+
+      function closeModal() {
+        document.getElementById("eventModal").style.display = "none";
+      }
+
+      window.onload = function () {
+        //initScene();
+        mostrarMapa(0, 0);
+      };
+
+      window.onclick = function (event) {
+        if (event.target === document.getElementById("eventModal")) {
+          closeModal();
         }
+      };
 
-        function mostrarEventos(eventos) {
-            const eventList = document.getElementById('eventList');
-            eventList.innerHTML = '';
-
-            eventos.forEach((evento) => {
-                const li = document.createElement('li');
-                li.innerText = evento.titulo;
-                li.onclick = function() {
-                    openModal(evento.titulo, `Distancia: ${evento.distancia_km.toFixed(2)} km`, evento.ubicacion);
-                    map.setView(evento.ubicacion, 8);
-                };
-                eventList.appendChild(li);
-
-                L.marker(evento.ubicacion)
-                    .addTo(map)
-                    .bindPopup(`<b>${evento.titulo}</b><br>Distancia: ${evento.distancia_km.toFixed(2)} km`)
-                    .on('click', function() {
-                        openModal(evento.titulo, `Distancia: ${evento.distancia_km.toFixed(2)} km`, evento.ubicacion);
-                    });
-            });
+      window.onresize = function () {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        if (map) {
+          map.invalidateSize();
         }
-
-        function openModal(title, description, location) {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalDescription').innerText = description;
-            document.getElementById('modalDistance').innerText = `Ubicación: ${location[0]}, ${location[1]}`;
-            document.getElementById('eventModal').style.display = "block";
-        }
-
-        function closeModal() {
-            document.getElementById('eventModal').style.display = "none";
-        }
-
-        window.onload = function() {
-            initScene();
-            mostrarMapa(0, 0);
-        };
-
-        window.onclick = function(event) {
-            if (event.target === document.getElementById('eventModal')) {
-                closeModal();
-            }
-        }
-
-        window.onresize = function() {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            if (map) {
-                map.invalidateSize();
-            }
-        };
+      };
     </script>
-</body>
+  </body>
 </html>
